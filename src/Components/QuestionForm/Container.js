@@ -24,6 +24,7 @@ const prepareTags = R.compose(
 
 const mapStateToProps = (state) => ({
   user: state.user,
+  loading: state.loader.CREATE_QUESTION
   // TODO: HOMEWORK 9: pick loader from here and display in UI when the post is creating
 });
 
@@ -47,6 +48,16 @@ const enhance = compose(
   branch(
     ({ isFetching }) => isFetching,
     renderComponent(AppLoader)
+  ),
+
+  branch(
+    ({ loading }) => loading,
+    renderComponent(AppLoader)
+  ),
+
+  branch(
+    ({ user, question }) => !user || (question._id && question.createdById !== user._id),
+    renderComponent(() => <Redirect to="/"/>),
   ),
 
   branch(
@@ -79,6 +90,8 @@ const enhance = compose(
         db.questions.update(match.params.questionId, document);
         history.push('/');
       } else {
+        console.log(user)
+        dispatch(loaderActions.createQuestion(db, document, history));
         // TODO: HOMEWORK 9: make it work, dispatch loaderActions.createQuestion with db, document and history as arguments
       }
     },
